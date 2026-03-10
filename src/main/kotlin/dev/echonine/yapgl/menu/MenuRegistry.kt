@@ -9,6 +9,7 @@ object MenuRegistry {
         private val openMenus = mutableMapOf<UUID, Menu>()
 
         suspend fun open(player: Player, menu: Menu) = withContext(YAPGL.dispatcher) {
+            openMenus[player.uniqueId]?.viewers?.remove(player)
             openMenus[player.uniqueId] = menu
         }
 
