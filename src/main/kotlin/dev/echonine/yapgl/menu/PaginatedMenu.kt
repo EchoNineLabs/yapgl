@@ -38,7 +38,7 @@ open class PaginatedMenu(
         if (page > 0) setPage(page - 1)
     }
 
-    override suspend fun open(player: Player) {
+    override suspend fun open(player: Player) = withContext(YAPGL.dispatcher) {
         if (viewers.isEmpty()) setPage(0)
         super.open(player)
     }
