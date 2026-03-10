@@ -18,8 +18,14 @@ import kotlinx.coroutines.launch
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+
+private const val CLICK_COOLDOWN_MS = 50L
 
 class PacketListener : PacketListenerAbstract() {
+
+    private val lastClickTime = ConcurrentHashMap<UUID, Long>()
 
     override fun onPacketReceive(event: PacketReceiveEvent) {
 
@@ -43,6 +49,10 @@ class PacketListener : PacketListenerAbstract() {
                 val clickType = packet.windowClickType.toBukkitClickType()
 
                 event.isCancelled = true
+
+                val now = System.currentTimeMillis()
+                val last = lastClickTime.put(player.uniqueId, now)
+                if (last != null && now - last < CLICK_COOLDOWN_MS) return
 
                 YAPGL.scope.launch {
                     val menu = MenuRegistry.getMenu(player) ?: return@launch
