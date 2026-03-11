@@ -14,6 +14,7 @@ import dev.echonine.yapgl.extenstions.sendPacket
 import dev.echonine.yapgl.extenstions.toBukkitClickType
 import dev.echonine.yapgl.menu.MenuRegistry
 import io.github.retrooper.packetevents.util.SpigotConversionUtil
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -79,14 +80,16 @@ class PacketListener : PacketListenerAbstract() {
 
                     if (cooldownRejected || component == null) return@launch
 
-                    component.onComponentClick(
-                        ComponentClickEvent(
-                            player = player,
-                            slot = slot,
-                            clickType = clickType,
-                            menu = menu
+                    YAPGL.scope.launch(Dispatchers.Default) {
+                        component.onComponentClick(
+                            ComponentClickEvent(
+                                player = player,
+                                slot = slot,
+                                clickType = clickType,
+                                menu = menu
+                            )
                         )
-                    )
+                    }
                 }
             }
 
