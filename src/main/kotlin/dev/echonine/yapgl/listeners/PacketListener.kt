@@ -52,17 +52,17 @@ class PacketListener : PacketListenerAbstract() {
 
                 val now = System.currentTimeMillis()
                 val last = lastClickTime.put(player.uniqueId, now)
-                if (last != null && now - last < CLICK_COOLDOWN_MS) return
+                val cooldownRejected = last != null && now - last < CLICK_COOLDOWN_MS
 
                 YAPGL.scope.launch {
                     val menu = MenuRegistry.getMenu(player) ?: return@launch
 
                     if (menu is AnvilMenu && slot == 2) {
-                        menu.handleSubmit(player, menu.currentInput)
+                        if (!cooldownRejected) menu.handleSubmit(player, menu.currentInput)
                         return@launch
                     }
 
-                    val component = menu.getComponentAtSlot(slot) ?: return@launch
+                    val component = menu.getComponentAtSlot(slot)
 
                     player.sendPacket(
                         WrapperPlayServerSetSlot(
@@ -73,9 +73,11 @@ class PacketListener : PacketListenerAbstract() {
                     player.sendPacket(
                         WrapperPlayServerSetSlot(
                             YAPGL.CONTAINER_ID, 0, slot,
-                            SpigotConversionUtil.fromBukkitItemStack(component.item)
+                            SpigotConversionUtil.fromBukkitItemStack(component?.item ?: ItemStack(Material.AIR))
                         )
                     )
+
+                    if (cooldownRejected || component == null) return@launch
 
                     component.onComponentClick(
                         ComponentClickEvent(
