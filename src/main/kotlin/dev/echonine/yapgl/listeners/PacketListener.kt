@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-private const val CLICK_COOLDOWN_MS = 50L
+private const val CLICK_COOLDOWN_MS = 150L
 
 class PacketListener : PacketListenerAbstract() {
 
