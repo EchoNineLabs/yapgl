@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.PacketEvents
 import dev.echonine.yapgl.listeners.PacketListener
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.Executors
@@ -11,7 +12,7 @@ import java.util.concurrent.Executors
 object YAPGL {
     internal var plugin: JavaPlugin? = null
     internal var dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    internal var scope = CoroutineScope(dispatcher)
+    internal var scope = CoroutineScope(SupervisorJob() + dispatcher)
 
     fun initialize(plugin: JavaPlugin) {
         this.plugin = plugin

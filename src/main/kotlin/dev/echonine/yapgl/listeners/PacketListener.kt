@@ -48,6 +48,7 @@ class PacketListener : PacketListenerAbstract() {
                 if (packet.windowId != YAPGL.CONTAINER_ID) return
                 val slot = packet.slot
                 val clickType = packet.windowClickType.toBukkitClickType()
+                val isPickupAll = packet.windowClickType == WrapperPlayClientClickWindow.WindowClickType.PICKUP_ALL
 
                 event.isCancelled = true
 
@@ -71,12 +72,27 @@ class PacketListener : PacketListenerAbstract() {
                             SpigotConversionUtil.fromBukkitItemStack(ItemStack(Material.AIR))
                         )
                     )
-                    player.sendPacket(
-                        WrapperPlayServerSetSlot(
-                            YAPGL.CONTAINER_ID, 0, slot,
-                            SpigotConversionUtil.fromBukkitItemStack(component?.item ?: ItemStack(Material.AIR))
+
+                    if (isPickupAll) {
+                        val matchType = component?.item?.type ?: Material.AIR
+                        menu.slots.forEach { (s, comp) ->
+                            if (comp.item.type == matchType) {
+                                player.sendPacket(
+                                    WrapperPlayServerSetSlot(
+                                        YAPGL.CONTAINER_ID, 0, s,
+                                        SpigotConversionUtil.fromBukkitItemStack(comp.item)
+                                    )
+                                )
+                            }
+                        }
+                    } else {
+                        player.sendPacket(
+                            WrapperPlayServerSetSlot(
+                                YAPGL.CONTAINER_ID, 0, slot,
+                                SpigotConversionUtil.fromBukkitItemStack(component?.item ?: ItemStack(Material.AIR))
+                            )
                         )
-                    )
+                    }
 
                     if (cooldownRejected || component == null) return@launch
 
