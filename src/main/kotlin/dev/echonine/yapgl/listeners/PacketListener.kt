@@ -52,6 +52,8 @@ class PacketListener : PacketListenerAbstract() {
 
                 event.isCancelled = true
 
+                if (slot < 0) return
+
                 val now = System.currentTimeMillis()
                 val last = lastClickTime.put(player.uniqueId, now)
                 val cooldownRejected = last != null && now - last < CLICK_COOLDOWN_MS
