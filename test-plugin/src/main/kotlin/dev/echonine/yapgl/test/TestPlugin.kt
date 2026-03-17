@@ -5,8 +5,12 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class TestPlugin : JavaPlugin()  {
     override fun onEnable() {
-        YAPGL.initialize(this)
+        YAPGL.initialize()
 
         this.server.commandMap.register("testyapgl", TestGUICommand())
+    }
+
+    override fun onDisable() {
+        YAPGL.shutdown()
     }
 }

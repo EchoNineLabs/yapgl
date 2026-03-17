@@ -2,23 +2,22 @@ package dev.echonine.yapgl
 
 import com.github.retrooper.packetevents.PacketEvents
 import dev.echonine.yapgl.listeners.PacketListener
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
-import org.bukkit.plugin.java.JavaPlugin
+import kotlinx.coroutines.*
 import java.util.concurrent.Executors
 
 object YAPGL {
-    internal var plugin: JavaPlugin? = null
     internal var dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     internal var scope = CoroutineScope(SupervisorJob() + dispatcher)
+    private val listener = PacketListener()
 
-    fun initialize(plugin: JavaPlugin) {
-        this.plugin = plugin
-
-        PacketEvents.getAPI().eventManager.registerListener(PacketListener())
+    fun initialize() {
+        PacketEvents.getAPI().eventManager.registerListener(listener)
     }
 
-    val CONTAINER_ID = 1318
+    fun shutdown() {
+        PacketEvents.getAPI().eventManager.unregisterListener(listener)
+        scope.cancel()
+    }
+
+    const val CONTAINER_ID = 1318
 }
