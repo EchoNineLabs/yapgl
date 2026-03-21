@@ -11,7 +11,7 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 suspend fun menu(title: Component, type: MenuType, block: suspend Menu.() -> Unit): Menu =
-    withContext(YAPGL.dispatcher) { Menu(title, type).also { it.block() } }
+    withContext(YAPGL.dispatcher) { Menu(title, type).also { it.building = true; it.block(); it.building = false } }
 
 suspend fun Menu.button(block: MenuButton.() -> Unit) {
     val btn = MenuButton().apply(block)
@@ -33,10 +33,10 @@ fun anvilMenu(title: Component, inputItem: ItemStack = ItemStack(Material.PAPER)
     AnvilMenu(title, inputItem).apply(block)
 
 suspend fun paginatedMenu(title: Component, type: MenuType, block: suspend PaginatedMenu.() -> Unit): PaginatedMenu =
-    withContext(YAPGL.dispatcher) { PaginatedMenu(title, type).also { it.block() } }
+    withContext(YAPGL.dispatcher) { PaginatedMenu(title, type).also { it.building = true; it.block(); it.building = false } }
 
 suspend fun <T> autoPaginatedMenu(title: Component, type: MenuType, items: List<T>, block: suspend AutoPaginatedMenu<T>.() -> Unit): AutoPaginatedMenu<T> =
-    withContext(YAPGL.dispatcher) { AutoPaginatedMenu<T>(title, type).also { it.items = items; it.block() } }
+    withContext(YAPGL.dispatcher) { AutoPaginatedMenu<T>(title, type).also { it.items = items; it.building = true; it.block(); it.building = false } }
 
 suspend fun <T> Menu.listButton(options: List<T>, block: ListButton<T>.() -> Unit) {
     val btn = ListButton<T>(options = options).apply(block)

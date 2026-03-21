@@ -39,6 +39,7 @@ class PacketListener : PacketListenerAbstract() {
                     val menu = MenuRegistry.getMenu(player) ?: return@launch
                     MenuRegistry.close(player)
                     menu.viewers.remove(player)
+                    if (menu.hasInventoryComponents) menu.restorePlayerInventory(player)
                 }
             }
 
@@ -49,6 +50,9 @@ class PacketListener : PacketListenerAbstract() {
                 val slot = packet.slot
                 val clickType = packet.windowClickType.toBukkitClickType()
                 val isPickupAll = packet.windowClickType == WrapperPlayClientClickWindow.WindowClickType.PICKUP_ALL
+                val isQuickMove = packet.windowClickType == WrapperPlayClientClickWindow.WindowClickType.QUICK_MOVE
+                val isSwap = packet.windowClickType == WrapperPlayClientClickWindow.WindowClickType.SWAP
+                val swapButton = if (isSwap) packet.button else -1
 
                 event.isCancelled = true
 
@@ -66,6 +70,11 @@ class PacketListener : PacketListenerAbstract() {
                         return@launch
                     }
 
+                    if (isQuickMove) {
+                        menu.fullRefresh(player)
+                        return@launch
+                    }
+
                     val component = menu.getComponentAtSlot(slot)
 
                     player.sendPacket(
@@ -76,22 +85,35 @@ class PacketListener : PacketListenerAbstract() {
                     )
 
                     if (isPickupAll) {
-                        val matchType = component?.item?.type ?: Material.AIR
-                        menu.slots.forEach { (s, comp) ->
-                            if (comp.item.type == matchType) {
-                                player.sendPacket(
-                                    WrapperPlayServerSetSlot(
-                                        YAPGL.CONTAINER_ID, 0, s,
-                                        SpigotConversionUtil.fromBukkitItemStack(comp.item)
-                                    )
-                                )
-                            }
+                        menu.fullRefresh(player)
+                    } else if (isSwap) {
+                        val correctionItem = component?.item ?: ItemStack(Material.AIR)
+                        player.sendPacket(WrapperPlayServerSetSlot(
+                            YAPGL.CONTAINER_ID, 0, slot,
+                            SpigotConversionUtil.fromBukkitItemStack(correctionItem)
+                        ))
+                        if (swapButton == 40) {
+                            player.sendPacket(WrapperPlayServerSetSlot(
+                                0, 0, 45,
+                                SpigotConversionUtil.fromBukkitItemStack(player.inventory.itemInOffHand)
+                            ))
+                        } else {
+                            val hotbarPacketSlot = menu.type.size + 27 + swapButton
+                            val hotbarItem = menu.slots[hotbarPacketSlot]?.item
+                                ?: menu.inventoryItemAt(player, hotbarPacketSlot)
+                            player.sendPacket(WrapperPlayServerSetSlot(
+                                YAPGL.CONTAINER_ID, 0, hotbarPacketSlot,
+                                SpigotConversionUtil.fromBukkitItemStack(hotbarItem)
+                            ))
                         }
                     } else {
+                        val correctionItem = component?.item
+                            ?: if (slot >= menu.type.size) menu.inventoryItemAt(player, slot)
+                            else ItemStack(Material.AIR)
                         player.sendPacket(
                             WrapperPlayServerSetSlot(
                                 YAPGL.CONTAINER_ID, 0, slot,
-                                SpigotConversionUtil.fromBukkitItemStack(component?.item ?: ItemStack(Material.AIR))
+                                SpigotConversionUtil.fromBukkitItemStack(correctionItem)
                             )
                         )
                     }

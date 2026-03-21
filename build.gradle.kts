@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "2.3.0"
-    `maven-publish`
+    id("com.vanniktech.maven.publish") version "0.36.0"
 }
 
 group = "dev.echonine"
@@ -24,14 +24,33 @@ dependencies {
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "dev.echonine"
-            artifactId = "yapgl"
-            version = version
-
-            from(components["java"])
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    coordinates("dev.echonine", "yapgl", project.version as String)
+    pom {
+        name = "yapgl"
+        description = "Yet Another Packet GUI Library for Minecraft"
+        inceptionYear = "2026"
+        url = "https://github.com/EchoNineLabs/yapgl"
+        licenses {
+            license {
+                name = "MIT"
+                url = "https://opensource.org/license/mit"
+            }
+        }
+        developers {
+            developer {
+                id = "Saturn745"
+                name = "Saturn"
+                email = "element@echonine.dev"
+                url = "https://github.com/Saturn745"
+            }
+        }
+        scm {
+            connection = "scm:git:https://github.com/EchoNineLabs/yapgl.git"
+            developerConnection = "scm:git:https://github.com/EchoNineLabs/yapgl.git"
+            url = "https://github.com/EchoNineLabs/Kite"
         }
     }
 }

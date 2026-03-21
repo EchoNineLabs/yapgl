@@ -124,6 +124,55 @@ class TestGUICommand : Command("testyapgl") {
                     onClick = { it.player.sendRichMessage("<rainbow>Rainbow!") }
                 }
 
+                // Example of using components in the players inventory
+                button(ItemStack(Material.CLOCK), 8) { event ->
+                    var count = 0
+
+                    fun counterItem() = ItemStack(Material.LIME_DYE).apply {
+                        itemMeta = itemMeta?.also { it.displayName(Component.text(count.toString())) }
+                    }
+
+                    menu(Component.text("Counter"), MenuType.CHEST_1_ROW) {
+                        // Center display
+                        button {
+                            id = "counter"
+                            item = counterItem()
+                            slot = 4
+                            priority = 1
+                        }
+
+                        button {
+                            id = "decrease"
+                            item = ItemStack(Material.RED_CONCRETE).apply {
+                                itemMeta = itemMeta?.also { it.displayName(Component.text("-")) }
+                            }
+                            slot = 39
+                            priority = 1
+                            onClick = {
+                                count--
+                                (getComponentAtSlot(4) as? MenuButton)?.item = counterItem()
+                                refresh()
+                            }
+                        }
+
+                        button {
+                            id = "increase"
+                            item = ItemStack(Material.LIME_CONCRETE).apply {
+                                itemMeta = itemMeta?.also { it.displayName(Component.text("+")) }
+                            }
+                            slot = 41
+                            priority = 1
+                            onClick = {
+                                count++
+                                (getComponentAtSlot(4) as? MenuButton)?.item = counterItem()
+                                refresh()
+                            }
+                        }
+
+                        fill(ItemStack(Material.BLACK_STAINED_GLASS_PANE))
+                    }.open(event.player)
+                }
+
                 fill(ItemStack(Material.BLACK_STAINED_GLASS_PANE))
             }
             menu.open(player)
