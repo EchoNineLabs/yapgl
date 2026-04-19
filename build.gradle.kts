@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.11.2")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.12.1")
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 }
 
